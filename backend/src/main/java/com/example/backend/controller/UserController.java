@@ -2,16 +2,18 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.User;
 import com.example.backend.service.UserService;
+import com.example.backend.security.JwtUtil;
 import com.example.backend.dto.LoginRequest;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @CrossOrigin
@@ -19,38 +21,105 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
     
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
+    }
+
+    private boolean isTokenValid(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return false;
+        }
+        String token = authHeader.substring(7);
+        return jwtUtil.validateToken(token);
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userService.register(user);
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            User registeredUser = userService.register(user);
+            String token = jwtUtil.generateToken(registeredUser.getUserEmail());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", registeredUser);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody LoginRequest loginRequest) {
-        return userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            User user = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+            String token = jwtUtil.generateToken(user.getUserEmail());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", user);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/allUsers")
-    public List<User> getAllUsers() {
-        return userService.findAll();
+    public ResponseEntity<?> getAllUsers( 
+        @Parameter(hidden = true) 
+        @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (!isTokenValid(authHeader)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid or missing token");
+        }
+
+        return ResponseEntity.ok(userService.findAll());
     }
 
+
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userService.findById(id);
+    public ResponseEntity<?> getUserById(
+        @PathVariable Long id,
+        @Parameter(hidden = true) 
+        @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (!isTokenValid(authHeader)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid or missing token");
+        }
+
+        return ResponseEntity.ok(userService.findById(id));
     }
     
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("update/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody User user) {
-        return userService.update(id, user);
-    }
     
+    public ResponseEntity<?> updateUser(
+        @PathVariable Long id,
+        @RequestBody User updatedUser,
+        @Parameter(hidden = true) 
+        @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (!isTokenValid(authHeader)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid or missing token");
+        }
+
+        return ResponseEntity.ok(userService.update(id, updatedUser));
+    }
+
+    @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/delete/{id}")
-    public void deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(
+        @PathVariable Long id,
+        @Parameter(hidden = true) 
+        @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (!isTokenValid(authHeader)) {    
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Invalid or missing token");
+        }
+
         userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

@@ -1,16 +1,61 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+function getToken()
+{
+    return localStorage.getItem('authToken');
+}
+
+export function saveToken(token)
+{
+    localStorage.setItem('authToken', token);
+}
+
+export function removeToken()
+{
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+}
+
+function getAuthHeaders()
+{
+    const token = getToken();
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    if (token)
+    {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+}
+
+export function isAuthenticated()
+{
+    if (getToken())
+    {
+        return true;
+    } else
+    {
+        return false;
+    }
+}
+
+// get all users
 export async function fetchUsers()
 {
     try
     {
-        const response = await fetch(`${BASE_URL}/allUsers`);
+        const response = await fetch(`${BASE_URL}/allUsers`, {
+            headers: getAuthHeaders(),
+        });
+
         if (!response.ok)
         {
             throw new Error('Network error');
         }
 
-        console.log(response)
         return await response.json();
     } catch (error)
     {
@@ -19,6 +64,7 @@ export async function fetchUsers()
     }
 }
 
+// login a user
 export async function loginUser(credentials)
 {
     try
@@ -36,10 +82,15 @@ export async function loginUser(credentials)
         {
             data = await response.json();
         } catch (error)
-        {
+        { }
 
+        if (response.ok && data && data.token)
+        {
+            saveToken(data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
         }
 
+        console.log(response)
         return {
             ok: response.ok,
             status: response.status,
@@ -52,6 +103,7 @@ export async function loginUser(credentials)
     }
 }
 
+// create a user
 export async function registerUser(userInfo)
 {
     try
@@ -73,6 +125,13 @@ export async function registerUser(userInfo)
 
         }
 
+        if (response.ok && data && data.token)
+        {
+            saveToken(data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+        }
+
+        // console.log(token)
         return {
             ok: response.ok,
             status: response.status,
