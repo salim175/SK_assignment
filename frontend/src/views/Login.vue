@@ -35,9 +35,9 @@ const handleLogin = async () => {
 
     localStorage.setItem("user", JSON.stringify(user));
 
-    router.push('/users')
+    router.push('/')
   } catch (e) {
-    errorMsg.value = 'Network error'
+    errorMsg.value = 'Network errorrr'
     snackbar.value = true
   } finally {
     loading.value = false

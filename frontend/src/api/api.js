@@ -167,3 +167,26 @@ export async function deleteUser(userId)
     }
 }
 
+// update a user
+export async function updateUser(userId, updatedInfo)
+{
+    try
+    {
+        const response = await fetch(`${BASE_URL}/update/${userId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(updatedInfo),
+        });
+
+        if (!response.ok)
+        {
+            throw new Error('Network error');
+        }
+
+        return await response.json();
+    } catch (error)
+    {
+        console.error("Error updating user:", error);
+        throw error;
+    }
+}

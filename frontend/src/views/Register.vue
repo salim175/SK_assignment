@@ -56,7 +56,7 @@ const handleRegister = async () => {
     // Automatically log in the user
     localStorage.setItem('user', JSON.stringify(user))
     
-    router.push('/users')
+    router.push('/')
   } catch (e) {
     errorMsg.value = 'Network error'
     snackbar.value = true

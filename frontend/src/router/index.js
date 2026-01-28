@@ -19,7 +19,7 @@ const router = createRouter({
     //   component: () => import('../views/AboutView.vue'),
     // },
     {
-      path: '/users',
+      path: '/',
       name: 'users',
       component: () => import('../views/Users.vue'),
       meta: { requiresAuth: true },
@@ -33,7 +33,13 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: () => import('../views/Register.vue'),
-    }
+    },
+    {
+      path: '/update/:id',
+      name: 'edit-user',
+      component: () => import('../views/EditUser.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

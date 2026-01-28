@@ -6,6 +6,8 @@ import { fetchUsers, deleteUser, removeToken, isAuthenticated } from "../api/api
 const router = useRouter();
 const users = ref([]);
 const error = ref("");
+const editingId = ref(null);
+const editingUser = ref({});
 
 const headers = ref([
   { title: 'ID', value: 'userId' },
@@ -14,7 +16,7 @@ const headers = ref([
   { title: 'Email', value: 'userEmail' },
   { title: 'Phone', value: 'userPhoneNumber' },
   { title: 'Address', value: 'userAddress' },
-  { title: 'Actions', value: 'actions', sortable: false }
+  { title: 'Actions', value: 'actions', sortable: false },
 ]);
 
 const handleDelete =async (userId) => {
@@ -24,6 +26,10 @@ const handleDelete =async (userId) => {
   } catch (e) {
     error.value = "Failed to delete user";
   }
+};
+
+const handleEdit = (userId) => {
+  router.push(`update/${userId}`);
 };
 
 onMounted(async () => {
@@ -69,6 +75,9 @@ const handleLogout = () => {
           v-if="users.length > 0"
         >
           <template #item.actions="{ item }">
+            <button @click="handleEdit(item.userId)" class="edit-btn">
+              Edit
+            </button>
             <button @click="handleDelete(item.userId)" class="delete-btn">
               Delete
             </button>
@@ -94,6 +103,13 @@ const handleLogout = () => {
   color: white;
   padding: 5px 10px;
   cursor: pointer;
+}
+.edit-btn {
+  background-color: #ffe44d;
+  color: black;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-right: 5px;
 }
 
 .header {
