@@ -96,7 +96,6 @@ public class UserController {
     
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("update/{id}")
-    
     public ResponseEntity<?> updateUser(
         @PathVariable Long id,
         @RequestBody User updatedUser,

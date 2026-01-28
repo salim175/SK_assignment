@@ -90,7 +90,7 @@ export async function loginUser(credentials)
             localStorage.setItem('user', JSON.stringify(data.user));
         }
 
-        console.log(response)
+        console.log("dataaaa", data)
         return {
             ok: response.ok,
             status: response.status,
@@ -143,3 +143,27 @@ export async function registerUser(userInfo)
         throw error;
     }
 }
+
+// delete a user
+export async function deleteUser(userId)
+{
+    try
+    {
+        const response = await fetch(`${BASE_URL}/delete/${userId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        });
+
+        if (!response.ok)
+        {
+            throw new Error('Network error');
+        }
+
+        return true;
+    } catch (error)
+    {
+        console.error("Error deleting user:", error);
+        throw error;
+    }
+}
+
