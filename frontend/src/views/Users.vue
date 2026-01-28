@@ -6,8 +6,6 @@ import { fetchUsers, deleteUser, removeToken, isAuthenticated } from "../api/api
 const router = useRouter();
 const users = ref([]);
 const error = ref("");
-const editingId = ref(null);
-const editingUser = ref({});
 
 const headers = ref([
   { title: 'ID', value: 'userId' },
