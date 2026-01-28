@@ -71,7 +71,6 @@ public class UserService {
         existingUser.setUserAddress(updatedUser.getUserAddress());
         existingUser.setUserEmail(updatedUser.getUserEmail());
 
-        // encoded the password if updated
         if (updatedUser.getUserPassword() != null && !updatedUser.getUserPassword().isEmpty()) {
             existingUser.setUserPassword(passwordEncoder.encode(updatedUser.getUserPassword()));
         }

@@ -35,6 +35,7 @@ public class UserController {
         return jwtUtil.validateToken(token);
     }
 
+    // create user
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         try {
@@ -53,6 +54,7 @@ public class UserController {
         }
     }
 
+    // login user
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -71,6 +73,7 @@ public class UserController {
         }
     }
     
+    // get all users
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/allUsers")
     public ResponseEntity<?> getAllUsers( 
@@ -83,7 +86,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll());
     }
 
-
+    // get user by id
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(
@@ -97,6 +100,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findById(id));
     }
     
+    // update user
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("update/{id}")
     public ResponseEntity<?> updateUser(
@@ -111,6 +115,7 @@ public class UserController {
         return ResponseEntity.ok(userService.update(id, updatedUser));
     }
 
+    // delete user
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteUser(
